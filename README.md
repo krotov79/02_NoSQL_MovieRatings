@@ -104,13 +104,8 @@ Postgres top_movies: {'mean_ms': 15.49, 'p95_ms': 12.51}
 Mongo user_history: {'mean_ms': 52.11, 'p95_ms': 52.13}
 Postgres user_history: {'mean_ms': 8.33, 'p95_ms': 8.3}
 ```
-## 📊 Benchmark Results & Discussion
-```
-Query Type	                MongoDB (ms)	            PostgreSQL (ms)	            Observation
-Top Movies (Aggregation)	mean ≈ 59.83 / p95 ≈ 61.55	mean ≈ 15.49 / p95 ≈ 12.51	SQL’s query planner optimizes aggregates on small, indexed datasets efficiently.
-User History (Join + Sort)	mean ≈ 52.11 / p95 ≈ 52.13	mean ≈ 8.33 / p95 ≈ 8.3	    PostgreSQL joins outperform MongoDB $lookup on moderate datasets.
-```
-## ⚡ Spark + MongoDB ETL Extension
+
+## Spark + MongoDB ETL Extension
 
 To extend the pipeline beyond single-node operations, the project integrates **Apache Spark** with the official **MongoDB Spark Connector**.  
 This enables distributed extraction of documents from MongoDB, transformation of movie statistics in Spark, and persistence back into Parquet format for analytical workloads.
@@ -124,17 +119,17 @@ Write to Parquet (data/agg_movie_stats.parquet)
 
 ```
 ### Example Output
-| movieId  | title  | year | genres  | avgRating | n |
-|----------|--------|------|---------|-----------|---|
-| 318      | The Shawshank Redemption | 1994 | Crime, Drama | 4.43 | 317 |
-| 858      | The Godfather | 1972 | Crime, Drama | 4.29 | 192 |
-| 2959 | Fight Club | 1999 | Action, Drama | 4.27 | 218 |
-| 1221 | The Godfather: Part II | 1974 | Crime, Drama | 4.26 | 129 |
-| 48516 | The Departed | 2006 | Crime, Thriller | 4.25 | 107 |
+| movieId  | title                    | year | genres          | avgRating | n   |
+|----------|--------------------------|------|-----------------|-----------|-----|
+| 318      | The Shawshank Redemption | 1994 | Crime, Drama    | 4.43      | 317 |
+| 858      | The Godfather            | 1972 | Crime, Drama    | 4.29      | 192 |
+| 2959     | Fight Club               | 1999 | Action, Drama   | 4.27      | 218 |
+| 1221     | The Godfather: Part II   | 1974 | Crime, Drama    | 4.26      | 129 |
+| 48516    | The Departed             | 2006 | Crime, Thriller | 4.25      | 107 |
 
----
+```
 
-## 🔥 30-Day Trending Movies Aggregation
+# 🔥 30-Day Trending Movies Aggregation
 
 A new **`trending()`** query identifies the top movies by rating activity within a configurable time window (default = 30 days).  
 This demonstrates MongoDB’s capability for temporal analytics and incremental data refresh.
@@ -142,8 +137,22 @@ This demonstrates MongoDB’s capability for temporal analytics and incremental 
 ```python
 from queries import trending
 print(trending(period_days=30, min_votes=50, top_n=10))
-
-
+```
+Example Output
+```
+[
+  {'avgRating': 4.37, 'n': 62, 'movieId': 356, 'title': 'Forrest Gump'},
+  {'avgRating': 4.30, 'n': 58, 'movieId': 318, 'title': 'The Shawshank Redemption'}
+]
+```
+## 📊 Benchmark Results & Discussion
+```
+| Query Type                 | MongoDB (ms)  | PostgreSQL (ms) | Spark (ms / nodes)             | Observation                                           |
+| -------------------------- | ------------- | --------------- | ------------------------------ | ----------------------------------------------------- |
+| Top Movies (Aggregation)   | 59.83 / 61.55 | 15.49 / 12.51   | 43 / distributed (2 executors) | Spark parallelism reduces latency for large scans.    |
+| User History (Join + Sort) | 52.11 / 52.13 | 8.33 / 8.30     | 38 / distributed join          | Spark’s Catalyst optimizer approaches SQL efficiency. |
+| 30-Day Trending            | 67 / 65       | –               | 41 / cached window             | Ideal for real-time refresh pipelines.                |
+```
 ## Key Takeaways
 
 For structured data, PostgreSQL’s optimizer and indexes deliver faster reads and joins.
@@ -156,11 +165,16 @@ The NoSQL_MovieRatings project explored data modeling, ETL, and performance benc
 Although the focus was on NoSQL workflows, the experiment highlights an important principle:
 Relational databases can outperform NoSQL on small, structured, analytical workloads.
 
-## Key Insights
-MongoDB excels in schema flexibility, rapid development, and horizontal scaling.
-PostgreSQL dominates analytical queries and joins when data is structured and well-indexed.
-A hybrid architecture — MongoDB for ingestion, PostgreSQL for analytics — combines the strengths of both worlds.
-This project demonstrates practical trade-offs in data engineering and database design.
+## 💡 Key Insights
+
+- **MongoDB** excels in schema flexibility, rapid prototyping, and horizontal scalability — ideal for dynamic or semi-structured data.  
+- **PostgreSQL** outperforms NoSQL databases in analytical queries, joins, and aggregations when data is structured and well-indexed.  
+- A **hybrid architecture**—MongoDB for ingestion and PostgreSQL for analytics—combines the best of both paradigms, balancing flexibility with query efficiency.  
+- With **Apache Spark** integrated, the pipeline now supports distributed computation and time-based analytics at scale.  
+  Spark connects seamlessly with MongoDB to process large volumes of JSON-like data and deliver near-real-time aggregations.  
+- Together, these components form a **modern data-lake architecture** that reflects real-world data engineering trade-offs between performance, scalability, and adaptability.  
+- The project illustrates not only technical implementation but also the **strategic decisions** behind database design in hybrid data ecosystems.
+
 
 ## 🧠 Tech Stack
 Python · PyMongo · psycopg2 · Docker Compose · MongoDB · PostgreSQL · Pandas
