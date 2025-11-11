@@ -110,6 +110,39 @@ Query Type	                MongoDB (ms)	            PostgreSQL (ms)	            
 Top Movies (Aggregation)	mean ≈ 59.83 / p95 ≈ 61.55	mean ≈ 15.49 / p95 ≈ 12.51	SQL’s query planner optimizes aggregates on small, indexed datasets efficiently.
 User History (Join + Sort)	mean ≈ 52.11 / p95 ≈ 52.13	mean ≈ 8.33 / p95 ≈ 8.3	    PostgreSQL joins outperform MongoDB $lookup on moderate datasets.
 ```
+## ⚡ Spark + MongoDB ETL Extension
+
+To extend the pipeline beyond single-node operations, the project integrates **Apache Spark** with the official **MongoDB Spark Connector**.  
+This enables distributed extraction of documents from MongoDB, transformation of movie statistics in Spark, and persistence back into Parquet format for analytical workloads.
+
+### ETL Flow
+MongoDB (ratings, movies, users)
+↓ via SparkSession.read.format("mongodb")
+Spark DataFrame → Aggregation (avg rating, vote count)
+↓
+Write to Parquet (data/agg_movie_stats.parquet)
+
+```
+### Example Output
+| movieId  | title  | year | genres  | avgRating | n |
+|----------|--------|------|---------|-----------|---|
+| 318      | The Shawshank Redemption | 1994 | Crime, Drama | 4.43 | 317 |
+| 858      | The Godfather | 1972 | Crime, Drama | 4.29 | 192 |
+| 2959 | Fight Club | 1999 | Action, Drama | 4.27 | 218 |
+| 1221 | The Godfather: Part II | 1974 | Crime, Drama | 4.26 | 129 |
+| 48516 | The Departed | 2006 | Crime, Thriller | 4.25 | 107 |
+
+---
+
+## 🔥 30-Day Trending Movies Aggregation
+
+A new **`trending()`** query identifies the top movies by rating activity within a configurable time window (default = 30 days).  
+This demonstrates MongoDB’s capability for temporal analytics and incremental data refresh.
+
+```python
+from queries import trending
+print(trending(period_days=30, min_votes=50, top_n=10))
+
 
 ## Key Takeaways
 
