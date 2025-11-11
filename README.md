@@ -106,31 +106,30 @@ Postgres user_history: {'mean_ms': 8.33, 'p95_ms': 8.3}
 ```
 ## 📊 Benchmark Results & Discussion
 ```
-Query Type	MongoDB (ms)	PostgreSQL (ms)	Observation
+Query Type	                MongoDB (ms)	            PostgreSQL (ms)	            Observation
 Top Movies (Aggregation)	mean ≈ 59.83 / p95 ≈ 61.55	mean ≈ 15.49 / p95 ≈ 12.51	SQL’s query planner optimizes aggregates on small, indexed datasets efficiently.
-User History (Join + Sort)	mean ≈ 52.11 / p95 ≈ 52.13	mean ≈ 8.33 / p95 ≈ 8.3	PostgreSQL joins outperform MongoDB $lookup on moderate datasets.
+User History (Join + Sort)	mean ≈ 52.11 / p95 ≈ 52.13	mean ≈ 8.33 / p95 ≈ 8.3	    PostgreSQL joins outperform MongoDB $lookup on moderate datasets.
 ```
 
-##💡 Key Takeaways
+## Key Takeaways
 
 For structured data, PostgreSQL’s optimizer and indexes deliver faster reads and joins.
 MongoDB remains more flexible for dynamic schemas and unstructured ingestion.
 For hybrid systems, Mongo can serve as a real-time ingestion layer while Postgres supports analytical queries and reporting.
 
-##🧩 Conclusion
+## 🧩 Conclusion
 
 The NoSQL_MovieRatings project explored data modeling, ETL, and performance benchmarking between MongoDB and PostgreSQL using the MovieLens dataset.
 Although the focus was on NoSQL workflows, the experiment highlights an important principle:
 Relational databases can outperform NoSQL on small, structured, analytical workloads.
 
-Key Insights
+## Key Insights
 MongoDB excels in schema flexibility, rapid development, and horizontal scaling.
 PostgreSQL dominates analytical queries and joins when data is structured and well-indexed.
-A hybrid architecture — MongoDB for ingestion, PostgreSQL or Spark for analytics — combines the strengths of both worlds.
-This project demonstrates practical trade-offs in data engineering and database design — exactly what real-world systems demand.
+A hybrid architecture — MongoDB for ingestion, PostgreSQL for analytics — combines the strengths of both worlds.
+This project demonstrates practical trade-offs in data engineering and database design.
 
-🧠 Tech Stack
-
+## 🧠 Tech Stack
 Python · PyMongo · psycopg2 · Docker Compose · MongoDB · PostgreSQL · Pandas
 
 
